@@ -19,6 +19,7 @@ for (x,y,w,h) in faces_rect:
     cv.rectangle(img, (x,y), (x+w,y+h), (0,255,0), thickness=2)
 
 cv.imshow('Detected Faces', img)
+print(f"the face detected is {img}")
 
 
 

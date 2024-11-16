@@ -43,13 +43,13 @@ import cv2 as cv
 import os
 
 DIR = r"persons"
-haar_cascade = cv.CascadeClassifier("opencv-course/Section #3 - Faces/haar_face.xml")
+haar_cascade = cv.CascadeClassifier("front_face/haar_face.xml")
 
 people = [name for name in os.listdir(DIR) if os.path.isdir(os.path.join(DIR, name))]
 
 face_recognizer = cv.face.LBPHFaceRecognizer_create()
-face_recognizer.read('opencv-course/Section #3 - Faces/face_trained.yml')
-img = cv.imread(r'persons\tanishk\frame_196.jpg')
+face_recognizer.read('front_face/face_trained.yml')
+img = cv.imread(r'persons\gagan\frame_1.jpg')
 
 if img is None:
     print("Error: Test image not found!")
@@ -64,13 +64,15 @@ else:
         for (x, y, w, h) in faces_rect:
             faces_roi = gray[y:y+h, x:x+w]
             label, confidence = face_recognizer.predict(faces_roi)
+
             if 0 <= label < len(people):
                 print(f'Label = {people[label]} with a confidence of {confidence}')
                 cv.putText(img, str(people[label]), (x, y-10), cv.FONT_HERSHEY_COMPLEX, 1.0, (0, 255, 0), thickness=2)
                 cv.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), thickness=2)
             else:
                 print("Unknown label:", label)
-
+     
+    print(f"the confidence score is {confidence}")
     cv.imshow('Detected Face', img)
     cv.waitKey(0)
     cv.destroyAllWindows()
