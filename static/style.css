@@ -1,0 +1,94 @@
+/* Reset all margins and paddings */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body styling */
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f4f4f9;
+}
+
+/* Container styling */
+.container {
+  width: 90%;
+  max-width: 800px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Header styling */
+.header {
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+/* Content wrapper */
+.content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Row styling for Verified Name and Class Info */
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Section styling */
+.section {
+  flex: 1; /* Make sections equally wide */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 15px;
+  background-color: #fafafa;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Section headings */
+.section h2 {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Paragraph styling for info sections */
+.section p {
+  font-size: 1.2rem;
+  color: #555;
+  margin-top: 5px;
+}
+
+/* Video container styling */
+#video-container {
+  border: 5px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 0.3s ease-in-out;
+}
+
+#video-container.detected {
+  border-color: #4CAF50; /* Green border when a face is detected */
+}
+
+/* Video element styling */
+#video {
+  width: 100%;
+  height: auto;
+}

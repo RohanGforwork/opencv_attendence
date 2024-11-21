@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automated Attendance System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header class="header">Automated Attendance System</header>
+    
+    <div class="content">
+      <!-- Row for Verified Name and Class Info -->
+      <div class="row">
+        <!-- Verified Name Section -->
+        <div class="section" id="verified-name-section">
+          <h3>Verified Names:</h3>
+          <p id="verified-names">No one detected</p>
+        </div>
+
+        <!-- Class Info Section -->
+        <div class="section" id="class-info-section">
+          <h2>Class Info</h2>
+          <p id="class-info">Loading class information...</p>
+        </div>
+      </div>
+      
+      <!-- Camera Feed Section -->
+      <div class="section" id="camera-feed">
+        <h2>Camera Feed</h2>
+        <div id="video-container">
+          <img id="video" src="/video_feed" alt="Live Video Feed">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
