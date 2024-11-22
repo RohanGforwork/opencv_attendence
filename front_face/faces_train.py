@@ -3,7 +3,7 @@ import cv2 as cv
 import numpy as np
 
 DIR = 'persons'
-HAAR_CASCADE_PATH = 'front_face\haar_face.xml'
+HAAR_CASCADE_PATH = 'front_face/haar_face.xml'
 BATCH_SIZE = 32
 EPOCHS = 10
 
@@ -43,7 +43,7 @@ labels = np.array(labels)
 face_recognizer = cv.face.LBPHFaceRecognizer_create()
 face_recognizer.train(features, labels)
 
-face_recognizer.save('front_face\face_trained.yml')
+face_recognizer.save('front_face/face_trained.yml')
 np.save('features.npy', features)
 np.save('labels.npy', labels)
 
