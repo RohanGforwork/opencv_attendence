@@ -7,6 +7,8 @@ import atexit
 import time
 import numpy as np
 import threading
+import dlib
+from imutils import face_utils
 
 app = Flask(__name__)
 CORS(app)
@@ -55,8 +57,41 @@ class VideoStream:
 
 video_stream = VideoStream()
 
+
+
+
+
+predictor_path = "shape_predictor_68_face_landmarks.dat"  # Download this model
+face_detector = dlib.get_frontal_face_detector()
+shape_predictor = dlib.shape_predictor(predictor_path)
+
+# Constants for blink detection
+EYE_AR_THRESH = 0.2  # Eye Aspect Ratio threshold
+EYE_AR_CONSEC_FRAMES = 3  # Minimum consecutive frames for a blink
+
+# Indices for the eyes in the 68-point facial landmarks
+(left_start, left_end) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
+(right_start, right_end) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
+
+blink_counter = 0
+blink_confirmed = False
+
+def calculate_eye_aspect_ratio(eye):
+    # Compute the distances between the vertical eye landmarks
+    A = np.linalg.norm(eye[1] - eye[5])
+    B = np.linalg.norm(eye[2] - eye[4])
+
+    # Compute the distance between the horizontal eye landmarks
+    C = np.linalg.norm(eye[0] - eye[3])
+
+    # Compute the eye aspect ratio
+    ear = (A + B) / (2.0 * C)
+    return ear
+
+
+
 def generate_frames():
-    global recognized_names, detected_faces, all_captured_names
+    global recognized_names, detected_faces, all_captured_names, blink_counter, blink_confirmed
 
     recognized_person = None
     start_time = None
@@ -68,28 +103,59 @@ def generate_frames():
             continue
 
         gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-        faces_rect = haar_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=7)
+        faces = face_detector(gray)
 
-        detected_faces = len(faces_rect) > 0
+        detected_faces = len(faces) > 0
         recognized_names_temp = []
 
-        for (x, y, w, h) in faces_rect[:3]:
+        for face in faces:
+            x, y, w, h = (face.left(), face.top(), face.width(), face.height())
             face_roi = gray[y:y + h, x:x + w]
+
+            # Predict face label
             label, confidence = face_recognizer.predict(face_roi)
 
             if 0 <= label < len(people) and confidence < 100:
                 name = people[label]
-                if recognized_person == name:
-                    if start_time is None:
-                        start_time = time.time()
-                    elif time.time() - start_time >= 2:
-                        if name not in recognized_names_temp:
-                            recognized_names_temp.append(name)
-                            all_captured_names.add(name)
-                            frame_border_color = (0, 255, 0)
+
+                # Blink detection
+                shape = shape_predictor(gray, face)
+                shape = face_utils.shape_to_np(shape)
+
+                left_eye = shape[left_start:left_end]
+                right_eye = shape[right_start:right_end]
+
+                left_ear = calculate_eye_aspect_ratio(left_eye)
+                right_ear = calculate_eye_aspect_ratio(right_eye)
+
+                ear = (left_ear + right_ear) / 2.0
+
+                if ear < EYE_AR_THRESH:
+                    blink_counter += 1
                 else:
-                    recognized_person = name
-                    start_time = time.time()
+                    if blink_counter >= EYE_AR_CONSEC_FRAMES:
+                        blink_confirmed = True
+                        blink_counter = 0
+
+                if blink_confirmed:
+                    if recognized_person == name:
+                        if start_time is None:
+                            start_time = time.time()
+                        elif time.time() - start_time >= 2:
+                            if name not in recognized_names_temp:
+                                recognized_names_temp.append(name)
+                                all_captured_names.add(name)
+                                frame_border_color = (0, 255, 0)
+                    else:
+                        recognized_person = name
+                        start_time = time.time()
+                else:
+                    recognized_person = None
+                    start_time = None
+
+                    if "Unknown" not in recognized_names_temp:
+                        recognized_names_temp.append("Unknown")
+                        all_captured_names.add("Unknown")
             else:
                 recognized_person = None
                 start_time = None
