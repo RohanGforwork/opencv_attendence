@@ -9,6 +9,7 @@ import numpy as np
 import threading
 import dlib
 from imutils import face_utils
+import pandas as pd
 
 app = Flask(__name__)
 CORS(app)
@@ -153,9 +154,7 @@ def generate_frames():
                     recognized_person = None
                     start_time = None
 
-                    if "Unknown" not in recognized_names_temp:
-                        recognized_names_temp.append("Unknown")
-                        all_captured_names.add("Unknown")
+
             else:
                 recognized_person = None
                 start_time = None
@@ -178,6 +177,34 @@ def generate_frames():
 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n\r\n')
+        
+def get_class_info():
+    # Read the Excel file
+    file_path = 'class_timetable.xlsx'
+    df = pd.read_excel(file_path)
+
+    # Ensure the column names match the actual Excel structure
+    df.columns = df.columns.str.strip().str.lower()
+
+    # Convert 'start_time' and 'end_time' columns to datetime.time
+    df['start_time'] = pd.to_datetime(df['start_time'], format='%H:%M:%S').dt.time
+    df['end_time'] = pd.to_datetime(df['end_time'], format='%H:%M:%S').dt.time
+
+    # Get the current time as a datetime.time object
+    current_time = datetime.now().time()
+
+    # Filter for the class based on current time between start and end
+    current_class = df[(df['start_time'] <= current_time) & (df['end_time'] > current_time)]
+
+    if not current_class.empty:
+        return {
+            'start_time': current_class.iloc[0]['start_time'].strftime('%H:%M:%S'),
+            'end_time': current_class.iloc[0]['end_time'].strftime('%H:%M:%S'),
+            'course_name': current_class.iloc[0]['course_name'],
+            'instructor': current_class.iloc[0]['instructor']
+        }
+    else:
+        return {'start_time': 'N/A', 'end_time': 'N/A', 'course_name': 'No Class', 'instructor': 'N/A'}
 
 @app.route('/')
 def index():
@@ -194,6 +221,16 @@ def get_recognized_names():
         "names": ", ".join(recognized_names),
         "detected": detected_faces
     })
+
+
+@app.route('/get-class-info', methods=['GET'])
+def class_info():
+    try:
+        info = get_class_info()
+        return jsonify(info)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
 
 def on_exit():
     global all_captured_names

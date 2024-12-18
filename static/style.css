@@ -7,32 +7,40 @@
 
 /* Body styling */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f4f4f9;
+  background: linear-gradient(to bottom, #000000, #6a1b9a); /* Black to purple gradient */
+  color: #E0E0E0; /* Light gray text for contrast */
 }
 
 /* Container styling */
 .container {
   width: 90%;
   max-width: 800px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #2c2c2c; /* Dark gray background for the container */
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow for depth */
   overflow: hidden;
 }
 
 /* Header styling */
 .header {
-  background-color: #4CAF50;
-  color: #fff;
+  background-color: #8e24aa; /* Purple shade */
+  color: #ffffff;
   padding: 20px;
   text-align: center;
   font-size: 1.8rem;
   font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background-color 0.3s ease;
+}
+
+.header:hover {
+  background-color: #7b1fa2; /* Darker purple on hover */
 }
 
 /* Content wrapper */
@@ -48,47 +56,104 @@ body {
   display: flex;
   justify-content: space-between;
   gap: 20px;
+  flex-wrap: wrap;
 }
 
 /* Section styling */
 .section {
-  flex: 1; /* Make sections equally wide */
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  flex: 1;
+  border: 1px solid #333; /* Darker border for a more modern look */
+  border-radius: 8px;
   padding: 15px;
-  background-color: #fafafa;
+  background-color: #3e1b6f; /* Dark purple background */
   text-align: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Deeper shadow */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.section:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); /* Stronger hover effect */
+}
+
+.section:nth-child(odd) {
+  background-color: #5e2a8c; /* Slightly lighter purple */
 }
 
 /* Section headings */
 .section h2 {
   font-size: 1.4rem;
-  color: #333;
+  color: #e1bee7; /* Light purple */
   margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Paragraph styling for info sections */
 .section p {
   font-size: 1.2rem;
-  color: #555;
+  color: #f3e5f5; /* Very light purple */
   margin-top: 5px;
+  line-height: 1.5;
+  text-align: center;
 }
 
 /* Video container styling */
 #video-container {
-  border: 5px solid #ccc;
-  border-radius: 6px;
+  border: 5px solid #333; /* Dark border */
+  border-radius: 10px;
   overflow: hidden;
-  transition: border-color 0.3s ease-in-out;
+  transition: border-color 0.3s ease-in-out, transform 0.3s ease;
+}
+
+#video-container:hover {
+  transform: scale(1.02);
+  border-color: #8e24aa; /* Purple border on hover */
 }
 
 #video-container.detected {
-  border-color: #4CAF50; /* Green border when a face is detected */
+  border-color: #f3e5f5; /* Light purple when a face is detected */
 }
 
 /* Video element styling */
 #video {
   width: 100%;
   height: auto;
+  border-radius: 8px;
+}
+
+/* Button Styling */
+button {
+  background-color: #8e24aa; /* Purple shade */
+  border: none;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Add subtle shadow */
+}
+
+button:hover {
+  background-color: #7b1fa2; /* Darker purple */
+  transform: scale(1.05);
+}
+
+button:active {
+  transform: scale(0.98); /* Button click effect */
+}
+
+/* Styling for Verified Name section */
+.verified-name {
+  background-color: #3e1b6f; /* Dark purple */
+  color: #f3e5f5; /* Very light purple text */
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
