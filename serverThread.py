@@ -10,6 +10,8 @@ import threading
 import dlib
 from imutils import face_utils
 import pandas as pd
+import smtplib
+from email.message import EmailMessage
 
 app = Flask(__name__)
 CORS(app)
@@ -205,6 +207,92 @@ def get_class_info():
         }
     else:
         return {'start_time': 'N/A', 'end_time': 'N/A', 'course_name': 'No Class', 'instructor': 'N/A'}
+    
+def update_attendance():
+    global all_captured_names
+    
+    # Path to the attendance Excel file
+    file_path = 'ATTENDANCE.xlsx'  
+    updated_file_path = 'Updated_ATTENDANCE.xlsx'  
+    
+    # Load the attendance file
+    attendance_df = pd.read_excel(file_path)
+    
+    # Ensure column names are standardized
+    attendance_df.columns = attendance_df.columns.str.strip().str.lower()
+    
+    # Mark attendance
+    def mark_attendance(row):
+        if row['students'].strip().lower() in all_captured_names:
+            return "Present"
+        else:
+            return "Absent"
+
+    attendance_df['absent/present'] = attendance_df.apply(mark_attendance, axis=1)
+    
+    # Save the updated file
+    attendance_df.to_excel(updated_file_path, index=False)
+    print(f"Attendance updated and saved to {updated_file_path}")
+
+
+def send_email_with_attendance():
+    # Read the class timetable Excel file
+    timetable_df = pd.read_excel('class_timetable.xlsx')
+    timetable_df.columns = timetable_df.columns.str.strip().str.lower()
+
+    # Convert start and end times to datetime.time
+    timetable_df['start_time'] = pd.to_datetime(timetable_df['start_time'], format='%H:%M:%S').dt.time
+    timetable_df['end_time'] = pd.to_datetime(timetable_df['end_time'], format='%H:%M:%S').dt.time
+
+    # Get the current time
+    current_time = datetime.now().time()
+
+    # Identify the ongoing class based on current time
+    current_class = timetable_df[
+        (timetable_df['start_time'] <= current_time) & (timetable_df['end_time'] > current_time)
+    ]
+
+    if current_class.empty:
+        print("No ongoing class. Email will not be sent.")
+        return
+
+    # Extract instructor email and course name
+    instructor_email = current_class.iloc[0]['email']
+    course_name = current_class.iloc[0]['course_name']
+
+    if pd.isna(instructor_email):
+        print(f"No email available for the instructor of {course_name}.")
+        return
+
+    # Prepare email
+    email_sender = "hrudhaygirish9@gmail.com"  # Replace with your email
+    email_password = "rkdy pxke xemr elep"  # Replace with your email password
+    email_receiver = instructor_email.strip()
+
+    subject = f"Attendance Report for {course_name}"
+    body = f"Dear Instructor,\n\nPlease find attached the attendance report for your {course_name} class.\n\nRegards,\nAttendance System"
+
+    # Create the email
+    message = EmailMessage()
+    message['From'] = email_sender
+    message['To'] = email_receiver
+    message['Subject'] = subject
+    message.set_content(body)
+
+    # Attach the attendance file
+    with open('Updated_ATTENDANCE.xlsx', 'rb') as file:
+        file_data = file.read()
+        file_name = 'Updated_ATTENDANCE.xlsx'
+        message.add_attachment(file_data, maintype='application', subtype='octet-stream', filename=file_name)
+
+    # Send the email
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(email_sender, email_password)
+            server.send_message(message)
+            print(f"Attendance report sent to {email_receiver}.")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
 
 @app.route('/')
 def index():
@@ -237,6 +325,8 @@ def on_exit():
     print("\n--- Session Summary ---")
     print("All captured names:")
     print(", ".join(all_captured_names))
+    update_attendance()
+    send_email_with_attendance()
 
 atexit.register(on_exit)
 
