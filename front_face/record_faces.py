@@ -53,4 +53,4 @@ def record_and_process_video(name, base_path):
     out.release()
     cv2.destroyAllWindows()
 
-record_and_process_video('tanishk', r'persons')
+record_and_process_video('rajat', r'persons')

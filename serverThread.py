@@ -144,7 +144,7 @@ def generate_frames():
                     if recognized_person == name:
                         if start_time is None:
                             start_time = time.time()
-                        elif time.time() - start_time >= 2:
+                        elif time.time() - start_time >= 3: #changed
                             if name not in recognized_names_temp:
                                 recognized_names_temp.append(name)
                                 all_captured_names.add(name)
