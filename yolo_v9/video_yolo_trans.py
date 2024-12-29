@@ -10,6 +10,7 @@ model = YOLO(MODEL_PATH)
 recognized_person = None
 start_time = None
 all_captured_names = set()
+recognized_names_temp = set()
 frame_border_color = (0, 0, 255)
 
 cap = cv2.VideoCapture(0)
@@ -17,40 +18,38 @@ cap = cv2.VideoCapture(0)
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
-        print("Error: Unable to capture video.")
         break
 
     results = model(frame)
 
     if results and results[0].probs is not None:
         name_dict = results[0].names
-        probs = results[0].probs.data.cpu().numpy()  
+        probs = results[0].probs.data.cpu().numpy()
         top_class_index = np.argmax(probs)
         top_class = name_dict[top_class_index]
         top_confidence = probs[top_class_index]
 
-        if top_confidence > 0.8:  #
+        if top_confidence > 0.8:
             if recognized_person == top_class:
                 if start_time is None:
                     start_time = time.time()
                 elif time.time() - start_time >= 3:
-                    if top_class not in all_captured_names:
-                        print(f"The present person is {top_class}")
+                    if top_class not in recognized_names_temp:
+                        recognized_names_temp.add(top_class)
                         all_captured_names.add(top_class)
-                        frame_border_color = (0, 255, 0) 
+                        frame_border_color = (0, 255, 0)
             else:
                 recognized_person = top_class
                 start_time = time.time()
         else:
             recognized_person = None
             start_time = None
-
     else:
         recognized_person = None
         start_time = None
 
     if recognized_person is None:
-        frame_border_color = (0, 0, 255)  
+        frame_border_color = (0, 0, 255)
 
     recognized_text = f"Recognized: {recognized_person if recognized_person else 'None'}"
     cv2.putText(frame, recognized_text, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, frame_border_color, 2)
@@ -64,4 +63,4 @@ while cap.isOpened():
 cap.release()
 cv2.destroyAllWindows()
 
-print("Captured names:", list(all_captured_names))
+print(list(all_captured_names))
