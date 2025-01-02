@@ -12,6 +12,7 @@ start_time = None
 all_captured_names = set()
 recognized_names_temp = set()
 frame_border_color = (0, 0, 255)
+CONFIDENCE_THRESHOLD = 0.93 
 
 cap = cv2.VideoCapture(0)
 
@@ -29,7 +30,7 @@ while cap.isOpened():
         top_class = name_dict[top_class_index]
         top_confidence = probs[top_class_index]
 
-        if top_confidence > 0.8:
+        if top_confidence >= CONFIDENCE_THRESHOLD:
             if recognized_person == top_class:
                 if start_time is None:
                     start_time = time.time()
@@ -42,17 +43,17 @@ while cap.isOpened():
                 recognized_person = top_class
                 start_time = time.time()
         else:
-            recognized_person = None
+            recognized_person = "Unknown"
             start_time = None
+            frame_border_color = (0, 0, 255)
     else:
-        recognized_person = None
+        recognized_person = "Unknown"
         start_time = None
+        frame_border_color = (0, 0, 255) 
 
-    if recognized_person is None:
-        frame_border_color = (0, 0, 255)
-
-    recognized_text = f"Recognized: {recognized_person if recognized_person else 'None'}"
+    recognized_text = f"Recognized: {recognized_person}"
     cv2.putText(frame, recognized_text, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, frame_border_color, 2)
+    
     frame = cv2.copyMakeBorder(frame, 10, 10, 10, 10, cv2.BORDER_CONSTANT, value=frame_border_color)
 
     cv2.imshow("YOLO Real-Time Recognition", frame)

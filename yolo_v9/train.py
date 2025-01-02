@@ -28,9 +28,9 @@ if __name__ == '__main__':
 
     results = model.train(
         data=r"C:\Users\Roshan\OneDrive\Desktop\opencv_proj\opencv_attendence\yolo_v9\datasets_yolov8",
-        epochs=50,
+        epochs=100,
         imgsz=620,
-        batch = 10,
+        batch =10,
         device="cuda"  
     )
 
